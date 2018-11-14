@@ -1,0 +1,112 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+
+```
+
+```{r}
+library(readr)
+library(here)
+enade_2017_cg = read_csv(here::here("data/enade_2017_cg.csv")) %>% na.omit()
+valores_qe_tidy = read_csv(here::here("data/valores_qe_tidy.csv")) %>% na.omit()
+```
+
+```{r}
+library(stringr)
+
+renda.raw = enade_2017_cg$QE_I08
+
+renda.classifier = function(ans_key) {
+    classz = ans_key
+    if (str_detect(ans_key, regex("A"))) {
+        classz = "Até 1.5 s.m."
+    } else if (str_detect(ans_key, regex("B")) || str_detect(ans_key, regex("C"))) {
+        classz = "Entre 1.5 e 4.5 s.m."
+    } else if (str_detect(ans_key, regex("D")) || str_detect(ans_key, regex("E"))) {
+        classz = "Entre 4.5 e 10 s.m."
+    } else if (str_detect(ans_key, regex("F")) || str_detect(ans_key, regex("G"))) {
+        classz = "Entre 10 e 30 s.m."
+    }
+    return(classz)
+}
+
+renda = sapply(renda.raw, renda.classifier)
+```
+
+```{r}
+genre.raw = enade_2017_cg$TP_SEXO
+
+genre.classifier = function(ans_key) {
+    classz = ans_key
+    if (ans_key == "F") {
+        classz = "Feminino"
+    } else if (ans_key == "M") {
+        classz = "Masculino"
+    }
+    return(classz)
+}
+
+genre = sapply(genre.raw, genre.classifier)
+```
+
+```{r}
+race.raw = enade_2017_cg$QE_I02
+
+race.classifier = function(ans_key) {
+    classz = ans_key
+    if (ans_key == "A") {
+        classz = "Branca"
+    } else if (ans_key == "B") {
+        classz = "Preta"
+    } else if (ans_key == "C") {
+        classz = "Amarela"
+    } else if (ans_key == "D") {
+        classz = "Parda"
+    } else if (ans_key == "E") {
+        classz = "Indígena"
+    } else if (ans_key == "F") {
+        classz = "Não declarou"
+    }
+    return(classz)
+}
+
+race = sapply(race.raw, race.classifier)
+```
+
+```{r}
+school.raw = enade_2017_cg$QE_I17
+
+school.classifier = function(ans_key) {
+    classz = ans_key
+    if (ans_key == "A") {
+        classz = "Pública "
+    } else if (ans_key == "B") {
+        classz = "Privada"
+    } else if (ans_key == "C") {
+        classz = "Exterior"
+    } else if (ans_key == "D") {
+        classz = "Mais em pública"
+    } else if (ans_key == "E") {
+        classz = "Mais em privada"
+    } else if (ans_key == "F") {
+        classz = "Brasil e Exterior"
+    }
+    return(classz)
+}
+
+school = sapply(school.raw, school.classifier)
+```
+
+```{r}
+enade_2017_cg$QE_I08 = renda
+enade_2017_cg$TP_SEXO = genre
+enade_2017_cg$QE_I02 = race
+enade_2017_cg$QE_I17 = school
+
+write.csv2(enade_2017_cg, "../data/enade_2017_cg_less_classz.csv", row.names = FALSE)
+```
+
