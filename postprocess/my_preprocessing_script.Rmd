@@ -102,11 +102,39 @@ school = sapply(school.raw, school.classifier)
 ```
 
 ```{r}
+motivo.raw = enade_2017_cg$QE_I25
+
+motivo.classifier = function(ans_key) {
+    classz = ans_key
+    if (ans_key == "A") {
+        classz = "Inserção no mercado"
+    } else if (ans_key == "B") {
+        classz = "Influência familiar"
+    } else if (ans_key == "C") {
+        classz = "Valorização profissional"
+    } else if (ans_key == "D") {
+        classz = "Prestígio Social"
+    } else if (ans_key == "E") {
+        classz = "Vocação"
+    } else if (ans_key == "F") {
+        classz = "EAD"
+    } else if (ans_key == "G") {
+        classz = "Baixa concorrência"
+    } else if (ans_key == "H") {
+        classz = "Outro motivo"
+    }
+    return(classz)
+}
+
+motivo = sapply(motivo.raw, motivo.classifier)
+```
+
+```{r}
 enade_2017_cg$QE_I08 = renda
 enade_2017_cg$TP_SEXO = genre
 enade_2017_cg$QE_I02 = race
 enade_2017_cg$QE_I17 = school
+enade_2017_cg$QE_I25 = motivo
 
 write.csv2(enade_2017_cg, "../data/enade_2017_cg_less_classz.csv", row.names = FALSE)
 ```
-
